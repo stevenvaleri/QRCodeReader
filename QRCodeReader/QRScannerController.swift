@@ -15,9 +15,9 @@ class QRScannerController: UIViewController {
     @IBOutlet var topbar: UIView!
     
     var captureSession = AVCaptureSession()
-    
     var videoPreviewLayer: AVCaptureVideoPreviewLayer?
     var qrCodeFrameView: UIView?
+    var cameraAccess = false
 
     private let supportedCodeTypes = [AVMetadataObject.ObjectType.upce,
                                       AVMetadataObject.ObjectType.code39,
@@ -36,57 +36,94 @@ class QRScannerController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Get the back-facing camera for capturing videos
-        let deviceDiscoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInDualCamera], mediaType: AVMediaType.video, position: .back)
-        
-        guard let captureDevice = deviceDiscoverySession.devices.first else {
-            print("Failed to get the camera device")
-            return
+        let authorizationStatus = AVCaptureDevice.authorizationStatus(for: AVMediaType.video)
+        switch authorizationStatus {
+        case .notDetermined:
+            // permission dialog not yet presented, request authorization
+            AVCaptureDevice.requestAccess(for: AVMediaType.video,
+                                                      completionHandler: { (granted:Bool) -> Void in
+                                                        if granted {
+                                                            self.cameraAccess = true
+                                                        }
+                                                        else {
+                                                            // user denied, nothing much to do
+                                                        }
+            })
+        case .authorized:
+            cameraAccess = true
+        case .denied, .restricted:
+            // the user explicitly denied camera usage or is not allowed to access the camera devices
+            print("Access Denied")
         }
         
-        do {
-            // Get an instance of the AVCaptureDeviceInput class using the previous device object.
-            let input = try AVCaptureDeviceInput(device: captureDevice)
+        if cameraAccess{
+            // Get the back-facing camera for capturing videos
+            /*
+            let deviceDiscoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInDualCamera], mediaType: AVMediaType.video, position: .back)
+           
+            for d in deviceDiscoverySession.devices {
+                print()
+                
+            }
             
-            // Set the input device on the capture session.
-            captureSession.addInput(input)
             
-            // Initialize a AVCaptureMetadataOutput object and set it as the output device to the capture session.
-            let captureMetadataOutput = AVCaptureMetadataOutput()
-            captureSession.addOutput(captureMetadataOutput)
+            guard let captureDevice = deviceDiscoverySession.devices.first else {
+                print("Failed to get the camera device")
+                return
+            } */
             
-            // Set delegate and use the default dispatch queue to execute the call back
-            captureMetadataOutput.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
-            captureMetadataOutput.metadataObjectTypes = supportedCodeTypes
-//            captureMetadataOutput.metadataObjectTypes = [AVMetadataObject.ObjectType.qr]
+            guard let captureDevice = AVCaptureDevice.DiscoverySession(deviceTypes: [AVCaptureDevice.DeviceType.builtInWideAngleCamera], mediaType: AVMediaType.video, position: AVCaptureDevice.Position.back).devices.first else {
+                
+                print("Failed to get the camera device")
+                return
+            }
             
-        } catch {
-            // If any error occurs, simply print it out and don't continue any more.
-            print(error)
-            return
-        }
-        
-        // Initialize the video preview layer and add it as a sublayer to the viewPreview view's layer.
-        videoPreviewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
-        videoPreviewLayer?.videoGravity = AVLayerVideoGravity.resizeAspectFill
-        videoPreviewLayer?.frame = view.layer.bounds
-        view.layer.addSublayer(videoPreviewLayer!)
-        
-        // Start video capture.
-        captureSession.startRunning()
-        
-        // Move the message label and top bar to the front
-        view.bringSubview(toFront: messageLabel)
-        view.bringSubview(toFront: topbar)
-        
-        // Initialize QR Code Frame to highlight the QR code
-        qrCodeFrameView = UIView()
-        
-        if let qrCodeFrameView = qrCodeFrameView {
-            qrCodeFrameView.layer.borderColor = UIColor.green.cgColor
-            qrCodeFrameView.layer.borderWidth = 2
-            view.addSubview(qrCodeFrameView)
-            view.bringSubview(toFront: qrCodeFrameView)
+            
+            
+            do {
+                // Get an instance of the AVCaptureDeviceInput class using the previous device object.
+                let input = try AVCaptureDeviceInput(device: captureDevice)
+                
+                // Set the input device on the capture session.
+                captureSession.addInput(input)
+                
+                // Initialize a AVCaptureMetadataOutput object and set it as the output device to the capture session.
+                let captureMetadataOutput = AVCaptureMetadataOutput()
+                captureSession.addOutput(captureMetadataOutput)
+                
+                // Set delegate and use the default dispatch queue to execute the call back
+                captureMetadataOutput.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
+                captureMetadataOutput.metadataObjectTypes = supportedCodeTypes
+                //            captureMetadataOutput.metadataObjectTypes = [AVMetadataObject.ObjectType.qr]
+                
+            } catch {
+                // If any error occurs, simply print it out and don't continue any more.
+                print(error)
+                return
+            }
+            
+            // Initialize the video preview layer and add it as a sublayer to the viewPreview view's layer.
+            videoPreviewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
+            videoPreviewLayer?.videoGravity = AVLayerVideoGravity.resizeAspectFill
+            videoPreviewLayer?.frame = view.layer.bounds
+            view.layer.addSublayer(videoPreviewLayer!)
+            
+            // Start video capture.
+            captureSession.startRunning()
+            
+            // Move the message label and top bar to the front
+            view.bringSubview(toFront: messageLabel)
+            view.bringSubview(toFront: topbar)
+            
+            // Initialize QR Code Frame to highlight the QR code
+            qrCodeFrameView = UIView()
+            
+            if let qrCodeFrameView = qrCodeFrameView {
+                qrCodeFrameView.layer.borderColor = UIColor.green.cgColor
+                qrCodeFrameView.layer.borderWidth = 2
+                view.addSubview(qrCodeFrameView)
+                view.bringSubview(toFront: qrCodeFrameView)
+            }
         }
     }
 
@@ -147,5 +184,4 @@ extension QRScannerController: AVCaptureMetadataOutputObjectsDelegate {
             }
         }
     }
-    
 }

@@ -57,12 +57,12 @@
 			isa = PBXGroup;
 			children = (
 				F4F09DB61DAF669400026BB2 /* AppDelegate.swift */,
+				F4F09DC81DAF6A3800026BB2 /* QRCodeViewController.swift */,
+				F4F09DCA1DAF6A4F00026BB2 /* QRScannerController.swift */,
 				F4F09DBA1DAF669400026BB2 /* Main.storyboard */,
 				F4F09DBD1DAF669400026BB2 /* Assets.xcassets */,
 				F4F09DBF1DAF669400026BB2 /* LaunchScreen.storyboard */,
 				F4F09DC21DAF669400026BB2 /* Info.plist */,
-				F4F09DC81DAF6A3800026BB2 /* QRCodeViewController.swift */,
-				F4F09DCA1DAF6A4F00026BB2 /* QRScannerController.swift */,
 			);
 			path = QRCodeReader;
 			sourceTree = "<group>";
@@ -99,7 +99,7 @@
 				TargetAttributes = {
 					F4F09DB21DAF669400026BB2 = {
 						CreatedOnToolsVersion = 8.0;
-						DevelopmentTeam = YZP52RND5S;
+						DevelopmentTeam = G39YX25L6A;
 						LastSwiftMigration = 0910;
 						ProvisioningStyle = Automatic;
 					};
@@ -280,7 +280,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = YZP52RND5S;
+				DEVELOPMENT_TEAM = G39YX25L6A;
 				INFOPLIST_FILE = QRCodeReader/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.appcoda.QRCodeReader;
@@ -294,7 +294,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = YZP52RND5S;
+				DEVELOPMENT_TEAM = G39YX25L6A;
 				INFOPLIST_FILE = QRCodeReader/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.appcoda.QRCodeReader;
